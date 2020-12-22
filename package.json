@@ -1,0 +1,23 @@
+{
+  "name": "paelton-api",
+  "version": "1.0.0",
+  "description": "REST Service based API Biography documentaion  of Patriarch of Faith, PA ELTON",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
+  },
+  "author": "Olatunde Okegbemi",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.815.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^4.2.0",
+    "mongoose": "^5.11.8",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2",
+    "sharp": "^0.27.0"
+  }
+}
