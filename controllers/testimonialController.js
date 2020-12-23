@@ -2,7 +2,7 @@ const sharp = require('sharp');
 const multer = require('multer');
 const aws = require('../utils/aws');
 
-const Article = require('../models/articleModel');
+const Testimonial = require('../models/testimonialModel');
 const AppError = require('../utils/appError');
 
 const crudhandler = require('./crudhandler');
@@ -31,7 +31,7 @@ const uploadFileToS3 = catchAsync( async (req, fileName) => {
     const uploadedFile = await sharp(req.file.buffer).toFormat('jpeg').jpeg({ quality: 90 })
     
     const params = {
-        Bucket: 'paelton/articles-images',
+        Bucket: 'paelton/testimonials-images',
         Key: fileName,
         Body: uploadedFile
     }
@@ -43,49 +43,49 @@ const uploadFileToS3 = catchAsync( async (req, fileName) => {
     })
 })
 
-exports.createArticle = catchAsync(async (req, res, next) => {
+exports.createTestimonial = catchAsync(async (req, res, next) => {
 
     if (!req.file) return next();
 
-    const fileName = `article-${Date.now()}.jpeg`;
+    const fileName = `testimonial-${Date.now()}.jpeg`;
     req.body.image = fileName;
 
-    const article = await Article.create(req.body)
+    const testimonial = await Testimonial.create(req.body)
     uploadFileToS3(req, fileName)
 
     res.status(201).json({
         status: "success",
         data : {
-            article
+            testimonial
         }
     })
 })
 
-exports.updateArticle = catchAsync(async (req, res, next) => {
+exports.updateTestimonial = catchAsync(async (req, res, next) => {
 
     if(req.file){
-        const fileName = `article-${Date.now()}.jpeg`;
+        const fileName = `testimonial-${Date.now()}.jpeg`;
         req.body.image = fileName;
         uploadFileToS3(req, fileName)
     }
 
-    const article = await Article.findByIdAndUpdate(req.params.id, req.body, {
+    const testimonial = await Testimonial.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
     });
 
-    if (!article) {
-        return next(new AppError('No Article found with that ID', 404));
+    if (!testimonial) {
+        return next(new AppError('No Testimonial found with that ID', 404));
     }
 
     res.status(201).json({
         status: "success",
         data: {
-            article
+            testimonial
         }
     })
 })
 
-exports.getArticles = crudhandler.getAll(Article)
-exports.getArticle = crudhandler.getOne(Article)
-exports.deleteArticle = crudhandler.deleteOne(Article)
+exports.getTestimonials = crudhandler.getAll(Testimonial)
+exports.getTestimonial = crudhandler.getOne(Testimonial)
+exports.deleteTestimonial = crudhandler.deleteOne(Testimonial)

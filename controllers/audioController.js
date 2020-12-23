@@ -1,4 +1,4 @@
-const sharp = require('sharp');
+const slugify = require('slugify');
 const multer = require('multer');
 const aws = require('./../utils/aws');
 
@@ -11,10 +11,10 @@ const catchAsync = require('./../utils/catchAsync');
 const multerStorage = multer.memoryStorage()
 
 const multerFilter = (req, file, cb) => {
-    if(file.mimetype.startsWith('image')){
+    if(file.mimetype.startsWith('audio')){
         cb(null, true)
     }else {
-        cb(new AppError('Not an Image! Please upload only images', 400), false)
+        cb(new AppError('Please upload an audio file', 400), false)
     }
 }
 
@@ -23,16 +23,14 @@ const upload = multer({
     fileFilter: multerFilter
 })
 
-exports.handleImageFromClient = upload.single('image')
+exports.handleAudioFromClient = upload.single('audio')
 
 const uploadFileToS3 = catchAsync( async (req, fileName) => {
 
-    const uploadedImage = await sharp(req.file.buffer).toFormat('jpeg').jpeg({ quality: 90 })
-    
     const params = {
         Bucket: 'paelton/audios',
         Key: fileName,
-        Body: uploadedImage
+        Body: req.file.buffer
     }
     
     aws.upload(params, (error, data) => {
@@ -46,11 +44,13 @@ exports.createAudio = catchAsync( async (req, res, next) => {
 
     if (!req.file) return next();
 
-    const fileName = `audio-${Date.now()}.mp3`;
-    req.body.image = fileName;
+    const title_slug = slugify(req.body.title, { lower: true })
 
-    const audio  = await Audio.create(req.body)
+    const fileName = `audio-${ title_slug }.mp3`;
+    req.body.link = fileName
+
     uploadFileToS3(req, fileName)
+    const audio  = await Audio.create(req.body)
 
     res.status(201).json({
         status: "success",
@@ -63,9 +63,12 @@ exports.createAudio = catchAsync( async (req, res, next) => {
 exports.updateAudio = catchAsync( async (req, res, next) => {
 
     if(req.file){
-        const fileName = `audio-${Date.now()}.jpeg`;
-        req.body.image = fileName;
-        uploadImageToS3(req, fileName)
+        const title_slug = slugify(req.body.title, { lower: true })
+
+        const fileName = `audio-${ title_slug }.mp3`;
+        req.body.link = fileName
+
+        uploadFileToS3(req, fileName)
     }
 
     const audio = await Audio.findByIdAndUpdate(req.params.id, req.body, {

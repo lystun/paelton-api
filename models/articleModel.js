@@ -1,9 +1,9 @@
 const mongoose = require('mongoose'); 
 
-
 const articleSchema = mongoose.Schema({
     title: {
         type: String,
+        unique: true,
         required: [true, 'Please enter article title']
     },
     image :{

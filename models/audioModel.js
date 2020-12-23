@@ -6,10 +6,6 @@ const audioSchema = mongoose.Schema({
         unique: true,
         required: [true, 'Please enter the audio title']
     },
-    audio: {
-        type: String,
-        required: [true, 'Please upload the audio file']
-    },
     description: {
         type: String,
         required: [true, 'Please enter a short description of the audio file']
