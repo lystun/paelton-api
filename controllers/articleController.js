@@ -48,7 +48,7 @@ exports.createArticle = catchAsync(async (req, res, next) => {
     if (!req.file) return next();
 
     const fileName = `article-${Date.now()}.jpeg`;
-    req.body.image = fileName;
+    req.body.image = process.env.AWS_URL+fileName;
 
     const article = await Article.create(req.body)
     uploadFileToS3(req, fileName)
@@ -65,7 +65,7 @@ exports.updateArticle = catchAsync(async (req, res, next) => {
 
     if(req.file){
         const fileName = `article-${Date.now()}.jpeg`;
-        req.body.image = fileName;
+        req.body.image = process.env.AWS_URL+fileName;
         uploadFileToS3(req, fileName)
     }
 

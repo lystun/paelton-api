@@ -1,8 +1,12 @@
 const express = require('express');
 const articleController = require('./../controllers/articleController');
 const authController = require('./../controllers/authController');
+const readController = require('./../controllers/readController');
 
 const router = express.Router()
+
+router.get('/read', readController.readAll)
+router.get('/read/:id', readController.readOne)
 
 router.route('/')
     .get(articleController.getArticles)
