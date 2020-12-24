@@ -10,45 +10,36 @@ const crudhandler = require('./crudhandler');
 const catchAsync = require('../utils/catchAsync');
 
 //Handle image upload from client and store in memory.
-const multerStorage = multer.memoryStorage()
-const multerFilterImage = (req, file, cb) => {
-    if(file.mimetype.startsWith('image')){
+const multerStorage = multer.memoryStorage() 
+
+const multerFilter = (req, file, cb) => {
+    if(file.mimetype.startsWith('image') || file.mimetype.startsWith('application/pdf') ){
         cb(null, true)
     }else {
-        cb(new AppError('Not an Image! Please upload only images', 400), false)
+        cb(new AppError('Please upload relevant files! Images and PDFs only', 400), false)
     }
 }
 
-const multerFilterBook = (req, file, cb) => {
-    if(file.mimetype.startsWith('application/pdf')){
-        cb(null, true)
-    }else {
-        cb(new AppError('Please upload files in PDF Format only', 400), false)
-    }
-}
-
-const multerUploadImage = multer({
+const multerUpload = multer({
     storage: multerStorage,
-    fileFilter: multerFilterImage,
+    fileFilter: multerFilter
 })
 
-const multerUploadBook = multer({
-    storage: multerStorage,
-    fileFilter: multerFilterBook,
-})
+exports.handleFilesFromClient = multerUpload.fields([
+    { name: 'image' },
+    { name: 'book' },
+])
 
-exports.handleImageFromCLient = multerUploadImage.single('image')
-exports.handleBookFromCLient = multerUploadBook.single('book')
 
-//upload files to AWS storage bucket
-const uploadFileToS3 = catchAsync( async (req, fileName) => {
+//upload image to AWS storage bucket
+const uploadImageToS3 = catchAsync( async (req, fileName) => {
 
-    const uploadedFile = await sharp(req.file.buffer).toFormat('jpeg').jpeg({ quality: 90 })
+    const uploadedImage = await sharp(req.files.image[0].buffer).toFormat('jpeg').jpeg({ quality: 90 })
     
     const params = {
         Bucket: 'paelton/books-images',
         Key: fileName,
-        Body: uploadedFile
+        Body: uploadedImage
     }
     
     aws.upload(params, (error, data) => {
@@ -63,7 +54,7 @@ const uploadBookToS3 = (req, fileName) => {
     const params = {
         Bucket: 'paelton/books-pdf',
         Key: fileName,
-        Body: req.file.buffer
+        Body: req.files.book[0].buffer
     }
     
     aws.upload(params, (error, data) => {
@@ -73,17 +64,20 @@ const uploadBookToS3 = (req, fileName) => {
     })
 }
 
-exports.testBook = catchAsync(async (req, res, next) => {
-
-    if (!req.file) return next();
-
-    const title_slug = slugify(req.body.title, { lower: true })
-    const fileName =`book-${title_slug}.pdf`;
+exports.createBook = catchAsync(async (req, res, next) => {
     
-    req.body.link = fileName
+    const title_slug = slugify(req.body.title, { lower: true })
+
+    const fileImageName = `book-${title_slug}.jpeg`;
+    req.body.image = fileImageName;
+
+    const fileBookName = `book-${title_slug}.pdf`;
+    req.body.link = fileBookName;
+
+    uploadImageToS3(req, fileImageName)
+    uploadBookToS3(req, fileBookName)
 
     const book = await Book.create(req.body)
-    uploadBookToS3(req, fileName)
 
     res.status(201).json({
         status: "success",
@@ -93,41 +87,22 @@ exports.testBook = catchAsync(async (req, res, next) => {
     })
 })
 
-exports.createBook = catchAsync(async (req, res, next) => {
-    
-    // if (!req.file) return next();
-    console.log(req.file);
-
-
-    // const title_slug = slugify(req.body.title, { lower: true })
-
-    // const fileImageName = `book-${title_slug}.jpeg`;
-    // req.body.image = fileImageName;
-
-    // const fileBookName = `book-${title_slug}.pdf`;
-    // req.body.link = fileBookName;
-
-    // console.log(title_slug);
-
-    // const book = await Book.create(req.body)
-    
-    // uploadFileToS3(req, fileImageName)
-    // uploadBookToS3(req, fileBookName)
-
-    res.status(201).json({
-        status: "success",
-        data : {
-            // book
-        }
-    })
-})
-
 exports.updateBook = catchAsync(async (req, res, next) => {
 
     if(req.file){
-        const fileName = `book-${Date.now()}.jpeg`;
-        req.body.image = fileName;
-        uploadFileToS3(req, fileName)
+
+        if(!req.body.title) next(new AppError('Please enter enter title', 400))
+
+        const title_slug = slugify(req.body.title, { lower: true })
+
+        const fileImageName = `book-${title_slug}.jpeg`;
+        req.body.image = fileImageName;
+
+        const fileBookName = `book-${title_slug}.pdf`;
+        req.body.link = fileBookName;
+
+        uploadImageToS3(req, fileImageName)
+        uploadBookToS3(req, fileBookName)
     }
 
     const book = await Book.findByIdAndUpdate(req.params.id, req.body, {
