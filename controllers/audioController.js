@@ -5,7 +5,7 @@ const aws = require('./../utils/aws');
 const Audio = require('./../models/audioModel');
 const AppError = require('./../utils/appError');
 
-const crudhandler = require('./crudhandler');
+const crudhandler = require('./crudHandler');
 const catchAsync = require('./../utils/catchAsync');
 
 const multerStorage = multer.memoryStorage()

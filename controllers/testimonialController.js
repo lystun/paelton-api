@@ -5,7 +5,7 @@ const aws = require('../utils/aws');
 const Testimonial = require('../models/testimonialModel');
 const AppError = require('../utils/appError');
 
-const crudhandler = require('./crudhandler');
+const crudhandler = require('./crudHandler');
 const catchAsync = require('../utils/catchAsync');
 
 //Handle image upload from client and store in memory.
