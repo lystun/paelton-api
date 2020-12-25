@@ -5,7 +5,7 @@ const aws = require('./../utils/aws');
 const Audio = require('./../models/audioModel');
 const AppError = require('./../utils/appError');
 
-const crudhandler = require('./crudHandler');
+const crudHandler = require('./crudHandler');
 const catchAsync = require('./../utils/catchAsync');
 
 const multerStorage = multer.memoryStorage()
@@ -88,8 +88,8 @@ exports.updateAudio = catchAsync( async (req, res, next) => {
     })
 })
 
-exports.getAudios = crudhandler.getAll(Audio)
-exports.getAudio = crudhandler.getOne(Audio)
-exports.deleteAudio = crudhandler.deleteOne(Audio)
+exports.getAudios = crudHandler.getAll(Audio)
+exports.getAudio = crudHandler.getOne(Audio)
+exports.deleteAudio = crudHandler.deleteOne(Audio)
 
 

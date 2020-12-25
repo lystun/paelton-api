@@ -5,7 +5,7 @@ const aws = require('../utils/aws');
 const Testimonial = require('../models/testimonialModel');
 const AppError = require('../utils/appError');
 
-const crudhandler = require('./crudHandler');
+const crudHandler = require('./crudHandler');
 const catchAsync = require('../utils/catchAsync');
 
 //Handle image upload from client and store in memory.
@@ -86,6 +86,6 @@ exports.updateTestimonial = catchAsync(async (req, res, next) => {
     })
 })
 
-exports.getTestimonials = crudhandler.getAll(Testimonial)
-exports.getTestimonial = crudhandler.getOne(Testimonial)
-exports.deleteTestimonial = crudhandler.deleteOne(Testimonial)
+exports.getTestimonials = crudHandler.getAll(Testimonial)
+exports.getTestimonial = crudHandler.getOne(Testimonial)
+exports.deleteTestimonial = crudHandler.deleteOne(Testimonial)

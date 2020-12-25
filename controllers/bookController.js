@@ -6,7 +6,7 @@ const aws = require('../utils/aws');
 const Book = require('../models/bookModel');
 const AppError = require('../utils/appError');
 
-const crudhandler = require('./crudHandler');
+const crudHandler = require('./crudHandler');
 const catchAsync = require('../utils/catchAsync');
 
 //Handle image upload from client and store in memory.
@@ -122,6 +122,6 @@ exports.updateBook = catchAsync(async (req, res, next) => {
     })
 })
 
-exports.getBooks = crudhandler.getAll(Book)
-exports.getBook = crudhandler.getOne(Book)
-exports.deleteBook = crudhandler.deleteOne(Book)
+exports.getBooks = crudHandler.getAll(Book)
+exports.getBook = crudHandler.getOne(Book)
+exports.deleteBook = crudHandler.deleteOne(Book)
