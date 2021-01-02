@@ -32,6 +32,8 @@ const sendErrorDev = (err, res) => {
 const sendErrorProd = (err, res) => {
     // Operational, known error: send message to client 
     if(err.isOperational){
+
+        console.log(err);
         
         res.status(err.statusCode).json({
             status: err.status,
@@ -61,8 +63,7 @@ module.exports = (err, req, res, next) => {
         sendErrorDev(err, res)
     }
 
-    // if(process.env.NODE_ENV === 'production'){
-    if(process.env.NODE_ENV === 'development'){
+    if(process.env.NODE_ENV === 'production'){
         let error = { ...err }
 
         if(error.name === 'CastError') error = handleCastErrorDB(error)
