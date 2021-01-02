@@ -46,27 +46,60 @@ const sendErrorDev = (err, req, res) => {
 	
 }
 
-const sendErrorProd = (err, req, res) => {
-    // Operational, known error: send message to client 
-    if(err.isOperational){
+// const sendErrorProd = (err, req, res) => {
+//     // Operational, known error: send message to client 
+//     if(err.isOperational){
         
-        res.status(err.statusCode).json({
-            status: err.status,
-            message: err.message,
-        })
+//         res.status(err.statusCode).json({
+//             status: err.status,
+//             message: err.message,
+//         })
         
-    }else {
+//     }else {
 
-        //1. log the error
-        console.error('Error', err);
+//         //1. log the error
+//         console.error('Error', err);
         
-        //2. send a generic message
-        res.status(500).json({
+//         //2. send a generic message
+//         res.status(500).json({
+//             status: 'error',
+//             message: 'Something went untracebly wrong!',
+//         })
+//     }
+// }
+
+const sendErrorProd = (err, req, res) => {
+
+    if (req.originalUrl.startsWith('/api')) {
+        if (err.isOperational) {
+            return res.status(err.statusCode).json({
+            status: err.status,
+            message: err.message
+            });
+        }
+
+        console.error('ERROR 💥', err);
+        return res.status(500).json({
             status: 'error',
-            message: 'Something went untracebly wrong!',
-        })
+            message: 'Something went very wrong!'
+        });
     }
-}
+  
+    if (err.isOperational) {
+        return res.status(err.statusCode).render('error', {
+            title: 'Something went wrong!',
+            msg: err.message
+        });
+    }
+
+    console.error('ERROR 💥', err);
+
+    return res.status(err.statusCode).render('error', {
+        title: 'Something went wrong!',
+        msg: 'Please try again later.'
+    });
+
+};
 
 module.exports = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
