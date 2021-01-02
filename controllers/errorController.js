@@ -1,4 +1,5 @@
-const AppError = require("../utils/appError")
+const mongoose = require('mongoose');
+const AppError = require("../utils/appError");
 
 const handleCastErrorDB = err => {
     const message = `Invalid ${err.path}: ${err.value}.`
@@ -6,36 +7,48 @@ const handleCastErrorDB = err => {
 }
 
 const handleDuplicateFieldsDB = err => {
-    const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+	// const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+
+	const value = Object.keys(err.keyValue)+': '+ err.keyValue.title
+	console.log(value);
   
-    const message = `Duplicate field value: ${value}. Please use another value!`;
+    const message = `Duplicate field value - ${value}. Please use another value!`;
     return new AppError(message, 400);
-  };
+};
 
 const handleValidationErrorDB = err => {
-    const message = `Invalid input Data`
-    return new AppError(message, 400) 
-}
+    const errors = Object.values(err.errors).map(el => el.message);
+
+    const message = `Invalid input data. ${errors.join('. ')}`;
+    return new AppError(message, 400);
+};
 
 const handleJWTError = () => new AppError('Invalid Token. Please log in again', 401)
 const handleJWTExpiredError = () => new AppError('Your Token has expired. Please log in again', 401)
 
 
-const sendErrorDev = (err, res) => {
-    res.status(err.statusCode).json({
-        status: err.status,
-        error: err,
-        // error: err.errors,
-        message: err.message,
-        stack: err.stack,
-    })
+const sendErrorDev = (err, req, res) => {
+
+	if (req.originalUrl.startsWith('/api')) {
+		return res.status(err.statusCode).json({
+		  status: err.status,
+		  error: err,
+		  message: err.message,
+		  stack: err.stack
+		});
+	}
+	
+	console.error('ERROR 💥', err);
+	return res.status(err.statusCode).render('error', {
+		title: 'Something went wrong!',
+		msg: err.message
+	});
+	
 }
 
-const sendErrorProd = (err, res) => {
+const sendErrorProd = (err, req, res) => {
     // Operational, known error: send message to client 
     if(err.isOperational){
-
-        console.log(err);
         
         res.status(err.statusCode).json({
             status: err.status,
@@ -43,7 +56,6 @@ const sendErrorProd = (err, res) => {
         })
         
     }else {
-        // Programming or unknown error: don't leak error details
 
         //1. log the error
         console.error('Error', err);
@@ -62,15 +74,15 @@ module.exports = (err, req, res, next) => {
 
 
     if(process.env.NODE_ENV === 'development'){
-        sendErrorDev(err, res)
+        sendErrorDev(err, req, res)
     }
 
     if(process.env.NODE_ENV === 'production'){
-        let error = { ...err }
-
+		let error = { ...err }
+	
         if(error.name === 'CastError') error = handleCastErrorDB(error)
         if(error.code === 11000) error = handleDuplicateFieldsDB(error)
-        if(error.name === 'ValidationError') error = handleValidationErrorDB(error)
+		if(error.name === 'ValidatorError') error = handleValidationErrorDB(error)
         if(error.name === 'JsonWebTokenError') error = handleJWTError()
         if(error.name === 'TokenExpiredError') error = handleJWTExpiredError()
         
