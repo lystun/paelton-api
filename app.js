@@ -9,10 +9,6 @@ const compression = require('compression');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
-app.use(cors())
-app.use(helmet())
-app.use(express.json())
-app.use(compression())
 
 //Serving static files
 // app.use(express.static(`${__dirname}/public`));
@@ -26,6 +22,12 @@ const userRouter = require('./routes/userRoutes')
 const audioRouter = require('./routes/audioRoutes')
 const articleRouter = require('./routes/articleRoutes')
 const testimonialRouter = require('./routes/testimonialRoutes')
+
+app.use(helmet())
+app.use(express.json())
+// app.use(express.json({limit: '500kb'}));
+app.use(cors())
+app.use(compression())
 
 //application routes
 app.use('/api/v1/books', bookRouter);
