@@ -68,10 +68,10 @@ exports.createBook = catchAsync(async (req, res, next) => {
     const title_slug = slugify(req.body.title, { lower: true })
 
     const fileImageName = `book-${title_slug}.jpeg`;
-    req.body.image = process.env.AWS_URL+'/books-images/'+fileImageName;;
+    req.body.image = process.env.AWS_URL+'books-images/'+fileImageName;;
 
     const fileBookName = `book-${title_slug}.pdf`;
-    req.body.link = process.env.AWS_URL+'/books-images/'+fileBookName;
+    req.body.link = process.env.AWS_URL+'books-images/'+fileBookName;
 
     uploadImageToS3(req, fileImageName)
     uploadBookToS3(req, fileBookName)
@@ -95,10 +95,10 @@ exports.updateBook = catchAsync(async (req, res, next) => {
         const title_slug = slugify(req.body.title, { lower: true })
 
         const fileImageName = `book-${title_slug}.jpeg`;
-        req.body.image = process.env.AWS_URL+'/books-images/'+fileImageName;;
+        req.body.image = process.env.AWS_URL+'books-images/'+fileImageName;;
 
         const fileBookName = `book-${title_slug}.pdf`;
-        req.body.link = process.env.AWS_URL+'/books-images/'+fileBookName;
+        req.body.link = process.env.AWS_URL+'books-images/'+fileBookName;
 
         uploadImageToS3(req, fileImageName)
         uploadBookToS3(req, fileBookName)

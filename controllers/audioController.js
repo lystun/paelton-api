@@ -47,7 +47,7 @@ exports.createAudio = catchAsync( async (req, res, next) => {
     const title_slug = slugify(req.body.title, { lower: true })
 
     const fileName = `audio-${ title_slug }.mp3`;
-    req.body.link = process.env.AWS_URL+'/audios/'+fileName;
+    req.body.link = process.env.AWS_URL+'audios/'+fileName;
 
     uploadFileToS3(req, fileName)
     const audio  = await Audio.create(req.body)
@@ -66,7 +66,7 @@ exports.updateAudio = catchAsync( async (req, res, next) => {
         const title_slug = slugify(req.body.title, { lower: true })
 
         const fileName = `audio-${ title_slug }.mp3`;
-        req.body.link = process.env.AWS_URL+'/audios/'+fileName;
+        req.body.link = process.env.AWS_URL+'audios/'+fileName;
 
         uploadFileToS3(req, fileName)
     }
