@@ -50,7 +50,7 @@ exports.createTestimonial = catchAsync(async (req, res, next) => {
     if (!req.file) return next();
 
     const fileName = `testimonial-${Date.now()}.jpeg`;
-    req.body.image = process.env.AWS_URL+'/testimonials-images/'+fileName;
+    req.body.image = process.env.AWS_URL+'testimonials-images/'+fileName;
 
     const testimonial = await Testimonial.create(req.body)
     uploadFileToS3(req, fileName)
@@ -67,7 +67,7 @@ exports.updateTestimonial = catchAsync(async (req, res, next) => {
 
     if(req.file){
         const fileName = `testimonial-${Date.now()}.jpeg`;
-        req.body.image = process.env.AWS_URL+'/testimonials-images/'+fileName;
+        req.body.image = process.env.AWS_URL+'testimonials-images/'+fileName;
         uploadFileToS3(req, fileName)
     }
 
