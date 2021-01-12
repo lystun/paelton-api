@@ -52,8 +52,8 @@ exports.createTestimonial = catchAsync(async (req, res, next) => {
     const fileName = `testimonial-${Date.now()}.jpeg`;
     req.body.image = process.env.AWS_URL+'testimonials-images/'+fileName;
 
-    const testimonial = await Testimonial.create(req.body)
     uploadFileToS3(req, fileName)
+    const testimonial = await Testimonial.create(req.body)
 
     res.status(201).json({
         status: "success",
