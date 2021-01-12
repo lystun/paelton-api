@@ -26,7 +26,7 @@ const multerUpload = multer({
 exports.handleImageFromCLient = multerUpload.single('image')
 
 //upload files to AWS storage bucket
-const uploadFileToS3 = catchAsync( async (req, fileName) => {
+const uploadFileToS3 = catchAsync( async (req, fileName, next) => {
 
     const uploadedFile = await sharp(req.file.buffer).toFormat('jpeg').jpeg({ quality: 90 })
     
@@ -50,7 +50,7 @@ exports.createArticle = catchAsync(async (req, res, next) => {
     const fileName = `article-${Date.now()}.jpeg`;
     req.body.image = process.env.AWS_URL+'articles-images/'+fileName;
 
-    uploadFileToS3(req, fileName)
+    uploadFileToS3(req, fileName, next)
     const article = await Article.create(req.body)
 
     res.status(201).json({
@@ -66,7 +66,7 @@ exports.updateArticle = catchAsync(async (req, res, next) => {
     if(req.file){
         const fileName = `article-${Date.now()}.jpeg`;
         req.body.image = process.env.AWS_URL+'articles-images/'+fileName;;
-        uploadFileToS3(req, fileName)
+        uploadFileToS3(req, fileName, next)
     }
 
     const article = await Article.findByIdAndUpdate(req.params.id, req.body, {

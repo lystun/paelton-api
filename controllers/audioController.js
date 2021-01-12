@@ -25,7 +25,7 @@ const upload = multer({
 
 exports.handleAudioFromClient = upload.single('audio')
 
-const uploadFileToS3 = catchAsync( async (req, fileName) => {
+const uploadFileToS3 = catchAsync( async (req, fileName, next) => {
 
     const params = {
         Bucket: 'paelton/audios',
@@ -49,7 +49,7 @@ exports.createAudio = catchAsync( async (req, res, next) => {
     const fileName = `audio-${ title_slug }.mp3`;
     req.body.link = process.env.AWS_URL+'audios/'+fileName;
 
-    uploadFileToS3(req, fileName)
+    uploadFileToS3(req, fileName, next)
     const audio  = await Audio.create(req.body)
 
     res.status(201).json({
@@ -68,7 +68,7 @@ exports.updateAudio = catchAsync( async (req, res, next) => {
         const fileName = `audio-${ title_slug }.mp3`;
         req.body.link = process.env.AWS_URL+'audios/'+fileName;
 
-        uploadFileToS3(req, fileName)
+        uploadFileToS3(req, fileName, next)
     }
 
     const audio = await Audio.findByIdAndUpdate(req.params.id, req.body, {

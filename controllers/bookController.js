@@ -31,7 +31,7 @@ exports.handleFilesFromClient = multerUpload.fields([
 ])
 
 //upload image to AWS storage bucket
-const uploadImageToS3 = catchAsync( async (req, fileName) => {
+const uploadImageToS3 = catchAsync( async (req, fileName, next) => {
 
     const uploadedImage = await sharp(req.files.image[0].buffer).toFormat('jpeg').jpeg({ quality: 90 })
     
@@ -49,7 +49,7 @@ const uploadImageToS3 = catchAsync( async (req, fileName) => {
 })
 
 //upload books to AWS storage bucket
-const uploadBookToS3 = (req, fileName) => {
+const uploadBookToS3 = (req, fileName, next) => {
     const params = {
         Bucket: 'paelton/books-pdf',
         Key: fileName,
@@ -73,8 +73,8 @@ exports.createBook = catchAsync(async (req, res, next) => {
     const fileBookName = `book-${title_slug}.pdf`;
     req.body.link = process.env.AWS_URL+'books-pdf/'+fileBookName;
 
-    uploadImageToS3(req, fileImageName)
-    uploadBookToS3(req, fileBookName)
+    uploadImageToS3(req, fileImageName, next)
+    uploadBookToS3(req, fileBookName, next)
 
     const book = await Book.create(req.body)
 
@@ -100,8 +100,8 @@ exports.updateBook = catchAsync(async (req, res, next) => {
         const fileBookName = `book-${title_slug}.pdf`;
         req.body.link = process.env.AWS_URL+'books-pdf/'+fileBookName;
 
-        uploadImageToS3(req, fileImageName)
-        uploadBookToS3(req, fileBookName)
+        uploadImageToS3(req, fileImageName, next)
+        uploadBookToS3(req, fileBookName, next)
     }
 
     const book = await Book.findByIdAndUpdate(req.params.id, req.body, {
