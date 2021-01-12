@@ -51,7 +51,7 @@ exports.createArticle = catchAsync(async (req, res, next) => {
     const fileName = `article-${Date.now()}.jpeg`;
     req.body.image = process.env.AWS_URL+'articles-images/'+fileName;
 
-    // uploadFileToS3(req, fileName, next)
+    uploadFileToS3(req, fileName, next)
     const article = await Article.create(req.body)
 
     res.status(201).json({
