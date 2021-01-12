@@ -38,7 +38,8 @@ const uploadFileToS3 = catchAsync( async (req, fileName, next) => {
     
     aws.upload(params, (error, data) => {
         if(error){
-            next(new AppError(error.message, 400))
+            // next(new AppError(error, 400))
+            console.log(error)
         }
     })
 })
